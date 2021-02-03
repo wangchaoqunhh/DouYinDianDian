@@ -1,27 +1,32 @@
-package com.wcq.douyindiandian.software;
+package com.wcq.douyindiandian.software.factory;
 
 import android.accessibilityservice.AccessibilityService;
 import android.view.accessibility.AccessibilityEvent;
+
+import com.wcq.douyindiandian.software.DouYinSoftware;
+import com.wcq.douyindiandian.software.Software;
 
 import static com.wcq.douyindiandian.constants.Constant.isUsable;
 import static com.wcq.douyindiandian.software.Software.mSoftware;
 import static com.wcq.douyindiandian.util.ExpandFunctionKt.showLoge;
 
-public class CreateSoftware {
-    private static CreateSoftware mCreateSoftware;
+public class SoftwareFactory {
+    private static SoftwareFactory mSoftwareFactory;
 
-    public static CreateSoftware getInstance(String packageName, AccessibilityService accessibilityService) {
-        if (mCreateSoftware == null || mSoftware == null || !packageName.equals(mSoftware.getPackageName())) {
-            synchronized (CreateSoftware.class) {
-                if (mCreateSoftware == null || mSoftware == null || !packageName.equals(mSoftware.getPackageName())) {
-                    mCreateSoftware = new CreateSoftware(packageName, accessibilityService);
+    public static SoftwareFactory getInstance(String packageName, AccessibilityService accessibilityService) {
+        if (mSoftwareFactory == null || mSoftware == null || !packageName.equals(mSoftware.getPackageName())) {
+            synchronized (SoftwareFactory.class) {
+                if (mSoftwareFactory == null || mSoftware == null || !packageName.equals(mSoftware.getPackageName())) {
+                    if("com.ss.android.ugc.aweme".equals(packageName)){
+                        mSoftwareFactory = new SoftwareFactory(packageName, accessibilityService);
+                    }
                 }
             }
         }
-        return mCreateSoftware;
+        return mSoftwareFactory;
     }
 
-    private CreateSoftware(String packageName, AccessibilityService accessibilityService) {
+    private SoftwareFactory(String packageName, AccessibilityService accessibilityService) {
         showLoge(accessibilityService, "packageName", packageName);
         switch (packageName) {
             case "com.ss.android.ugc.aweme"://抖音
@@ -48,6 +53,6 @@ public class CreateSoftware {
             mSoftware.timer.cancel();
         }
         mSoftware = null;
-        mCreateSoftware = null;
+        mSoftwareFactory = null;
     }
 }

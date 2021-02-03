@@ -96,7 +96,7 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
             mFloatingButton?.setOnTouchListener(this)
             mWindowManager?.addView(mFloatingButton, mParams)
 
-            mFloatingButton?.tvStart?.setOnClickListener {
+            mFloatingButton?.button?.setOnClickListener {
                 isOnLivePlayAttention = cb_is_on_live_play_attention.isChecked
                 mixYinLang = et_mix_yin_lang.text.toString().toInt()
                 isCancelAttention = cb_is_cancel_attention.isChecked

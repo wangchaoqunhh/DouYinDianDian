@@ -2,7 +2,6 @@ package com.wcq.douyindiandian
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -48,7 +47,6 @@ class LoginActivity : AppCompatActivity() {
         if (!TextUtils.isEmpty(loginCode)) {
             et_login_code.setText(loginCode)
         }
-
         but_login.setOnClickListener {
             //获取登录码
             val etLoginCode: String? = et_login_code.text.toString()
@@ -101,6 +99,10 @@ class LoginActivity : AppCompatActivity() {
                 }
             })
         }
+        //TODO 后期注释掉
+        isUsable = true
+        MainActivity.launchActivity(mContext)
+        finish()
     }
 
     /**
@@ -166,28 +168,6 @@ class LoginActivity : AppCompatActivity() {
 
         })
     }
-
-    private fun getIMEI1(): String? {
-        //实例化TelephonyManager对象
-        val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-        var method: Method? = null
-        try {
-            method = telephonyManager.javaClass.getMethod("getDeviceId", Int::class.javaPrimitiveType)
-            //获取IMEI号
-            @SuppressLint("MissingPermission") val meid = telephonyManager.deviceId
-            //获取MEID号
-            val imei1 = method.invoke(telephonyManager, 2) as String
-            val imei2 = method.invoke(telephonyManager, 1) as String
-            Log.e("手机唯一", "MEID：$meid")
-            Log.e("手机唯一", "IMEI1：$imei1")
-            Log.e("手机唯一", "IMEI2：$imei2")
-            return imei1
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return ""
-    }
-
 
     /**
      * Pseudo-Unique ID, 这个在任何Android手机中都有效 解决手机中IMEI获取不到情况，兼容所有手机

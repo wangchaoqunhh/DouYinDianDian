@@ -37,6 +37,7 @@ public class DouYinSoftware extends Software {
                 case "com.ss.android.ugc.aweme.live.LivePlayActivity":
                     showToast(mAccessibilityService, "已自动开启榜上加关注");
                     showLoge(mAccessibilityService, "已自动开启榜上加关注", "已自动开启榜上加关注");
+                    currentActivityName = event.getClassName().toString();
 
                     Timer timer = new Timer();
                     timer.schedule(new TimerTask() {
@@ -47,7 +48,6 @@ public class DouYinSoftware extends Software {
                             boolean pageIsClick = mNodeInfoHelper.pageIsClick(mAccessibilityService.getRootInActiveWindow(), list);
                             if (pageIsClick) {
                                 isNeedGetInfo = true;
-                                currentActivityName = event.getClassName().toString();
                                 timer.cancel();
                             }
                         }

@@ -4,21 +4,23 @@ import android.accessibilityservice.AccessibilityService;
 import android.content.Intent;
 import android.view.accessibility.AccessibilityEvent;
 
-import com.wcq.douyindiandian.software.CreateSoftware;
+import com.wcq.douyindiandian.software.factory.SoftwareFactory;
 
 import static com.wcq.douyindiandian.util.ExpandFunctionKt.showLoge;
 import static com.wcq.douyindiandian.util.ExpandFunctionKt.showToast;
 
 public class MyAccessibilityService extends AccessibilityService {
 
-    private CreateSoftware mCreateSoftware;
+    private SoftwareFactory mSoftwareFactory;
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
 //        必须。通过这个函数可以接收系统发送来的AccessibilityEvent，接收来的AccessibilityEvent是经过过滤的，过滤是在配置工作时设置的。
         showLoge(this, "所有都能看", event.toString());
-        mCreateSoftware = CreateSoftware.getInstance(event.getPackageName().toString(), this);
-        mCreateSoftware.startRun(event);
+        mSoftwareFactory = SoftwareFactory.getInstance(event.getPackageName().toString(), this);
+        if (mSoftwareFactory != null) {
+            mSoftwareFactory.startRun(event);
+        }
     }
 
     @Override
@@ -39,7 +41,9 @@ public class MyAccessibilityService extends AccessibilityService {
     @Override
     public boolean onUnbind(Intent intent) {
         showLoge(this, "服务关闭", "关闭");
-        mCreateSoftware.destroyInstance();
+        if (mSoftwareFactory != null) {
+            mSoftwareFactory.destroyInstance();
+        }
         return super.onUnbind(intent);
 //        可选。在系统将要关闭这个AccessibilityService会被调用。在这个方法中进行一些释放资源的工作。
     }

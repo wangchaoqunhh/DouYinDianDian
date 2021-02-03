@@ -18,6 +18,7 @@ public class SuspendButton extends LinearLayout {
     private Context mContext;
     private int lastX;
     private int lastY;
+    public Button button;
     public TextView tvStart;
     private ImageView iv2;
     private ImageView iv3;
@@ -58,7 +59,7 @@ public class SuspendButton extends LinearLayout {
     public void initView(Context context) {
         this.mContext = context;
         View view = LayoutInflater.from(context).inflate(R.layout.view_suspend_but, this);
-        Button button = findViewById(R.id.button);
+        button = findViewById(R.id.button);
         tvStart = view.findViewById(R.id.tv_start);
         iv2 = view.findViewById(R.id.iv_2);
         iv3 = view.findViewById(R.id.iv_3);
@@ -66,16 +67,16 @@ public class SuspendButton extends LinearLayout {
         visibility = View.INVISIBLE;
         showOrHide(visibility);
 
-        button.setOnClickListener(v -> {
-            if (v.getId() == R.id.button) {
-                if (visibility == View.INVISIBLE) {
-                    visibility = View.VISIBLE;
-                } else if (visibility == View.VISIBLE) {
-                    visibility = View.INVISIBLE;
-                }
-                showOrHide(visibility);
-            }
-        });
+//        button.setOnClickListener(v -> {
+//            if (v.getId() == R.id.button) {
+//                if (visibility == View.INVISIBLE) {
+//                    visibility = View.VISIBLE;
+//                } else if (visibility == View.VISIBLE) {
+//                    visibility = View.INVISIBLE;
+//                }
+//                showOrHide(visibility);
+//            }
+//        });
 
     }
 
