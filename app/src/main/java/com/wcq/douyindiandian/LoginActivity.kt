@@ -1,13 +1,10 @@
 package com.wcq.douyindiandian
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.telephony.TelephonyManager
 import android.text.TextUtils
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import cn.bmob.v3.BmobQuery
@@ -21,7 +18,6 @@ import com.wcq.douyindiandian.util.showToast
 import com.zyao89.view.zloading.ZLoadingDialog
 import com.zyao89.view.zloading.Z_TYPE
 import kotlinx.android.synthetic.main.activity_login.*
-import java.lang.reflect.Method
 import java.util.*
 
 

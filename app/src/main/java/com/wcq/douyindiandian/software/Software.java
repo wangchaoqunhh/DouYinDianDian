@@ -6,7 +6,9 @@ import android.content.SharedPreferences;
 import android.text.TextUtils;
 import android.view.accessibility.AccessibilityEvent;
 
+import com.wcq.douyindiandian.application.AppApplication;
 import com.wcq.douyindiandian.entity.DYUser;
+import com.wcq.douyindiandian.entity.MainDataBean;
 import com.wcq.douyindiandian.util.NodeInfoHelper;
 
 import java.lang.reflect.Constructor;
@@ -39,8 +41,15 @@ public abstract class Software {
     private String packageName;
     public Timer timer;
 
+    private AppApplication mApplication;
+    public MainDataBean mainDataBean;
+
     public void onAccessibilityEvent(AccessibilityEvent event) {
         checkAccountUsable();
+        if (mApplication == null) {
+            mApplication = (AppApplication) mAccessibilityService.getApplication();
+            mainDataBean = mApplication.getMainDataBean();
+        }
     }
 
     public static <T extends Software> Software getInstance(Class<T> clazz, String packageName, AccessibilityService accessibilityService) {
@@ -72,7 +81,7 @@ public abstract class Software {
     /**
      * 开启一个定时器 并且在20s内如果页面没变化 就 isNeedGetInfo = true;
      */
-    public void startEventControl(){
+    public void startEventControl() {
         isNeedGetInfo = false;
         //开启一个定时 这样在外界影响下中段 isNeedGetInfo 让他自己也能 true
         final int an = mAttentionNumber;

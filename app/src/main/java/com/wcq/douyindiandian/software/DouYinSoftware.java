@@ -13,9 +13,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.wcq.douyindiandian.constants.Constant.DY.isCancelAttention;
-import static com.wcq.douyindiandian.constants.Constant.DY.isOnLivePlayAttention;
-import static com.wcq.douyindiandian.constants.Constant.mixYinLang;
 import static com.wcq.douyindiandian.util.ExpandFunctionKt.showLoge;
 import static com.wcq.douyindiandian.util.ExpandFunctionKt.showToast;
 
@@ -68,11 +65,11 @@ public class DouYinSoftware extends Software {
             switch (currentActivityName) {
                 case "com.ss.android.ugc.aweme.live.LivePlayActivity":
                     showLoge(mAccessibilityService, "抖音直播页", event.toString());
-                    if (isOnLivePlayAttention)
+                    if (mainDataBean.isLiveAttention())
                         livePlayClickAttention();
                     break;
                 case "com.ss.android.ugc.aweme.following.ui.FollowRelationTabActivity":
-                    if (isCancelAttention)
+                    if (mainDataBean.isCancelAttention())
                         cancelAllGuanZhu();
                     break;
             }
@@ -178,7 +175,7 @@ public class DouYinSoftware extends Software {
                     if (nodeInfo.getChildCount() > 3 && nodeInfo.getChild(2).isClickable()) {
                         try {
                             //音浪值 大于某个数时在点击关注此人
-                            if (Integer.parseInt(yinLang) > mixYinLang) {
+                            if (Integer.parseInt(yinLang) > mainDataBean.getAttentionMixYinLang()) {
                                 isNeedGuanZhu = true;
                             }
                         } catch (NumberFormatException e) {
@@ -198,7 +195,7 @@ public class DouYinSoftware extends Software {
                         boolean isNeedScreen = false;
                         try {
                             //音浪值 大于某个数时在点击关注此人
-                            if (Integer.parseInt(yinLang) > mixYinLang) {
+                            if (Integer.parseInt(yinLang) > mainDataBean.getAttentionMixYinLang()) {
                                 isNeedScreen = true;
                             }
                         } catch (NumberFormatException e) {

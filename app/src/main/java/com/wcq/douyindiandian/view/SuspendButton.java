@@ -19,10 +19,10 @@ public class SuspendButton extends LinearLayout {
     private int lastX;
     private int lastY;
     public Button button;
-    public TextView tvStart;
-    private ImageView iv2;
-    private ImageView iv3;
-    private ImageView iv4;
+//    public TextView tvStart;
+//    private ImageView iv2;
+//    private ImageView iv3;
+//    private ImageView iv4;
 
     private int visibility;
 
@@ -50,20 +50,20 @@ public class SuspendButton extends LinearLayout {
     }
 
     private void showOrHide(int visibility) {
-        tvStart.setVisibility(visibility);
-        iv2.setVisibility(visibility);
-        iv3.setVisibility(visibility);
-        iv4.setVisibility(visibility);
+//        tvStart.setVisibility(visibility);
+//        iv2.setVisibility(visibility);
+//        iv3.setVisibility(visibility);
+//        iv4.setVisibility(visibility);
     }
 
     public void initView(Context context) {
         this.mContext = context;
         View view = LayoutInflater.from(context).inflate(R.layout.view_suspend_but, this);
         button = findViewById(R.id.button);
-        tvStart = view.findViewById(R.id.tv_start);
-        iv2 = view.findViewById(R.id.iv_2);
-        iv3 = view.findViewById(R.id.iv_3);
-        iv4 = view.findViewById(R.id.iv_4);
+//        tvStart = view.findViewById(R.id.tv_start);
+//        iv2 = view.findViewById(R.id.iv_2);
+//        iv3 = view.findViewById(R.id.iv_3);
+//        iv4 = view.findViewById(R.id.iv_4);
         visibility = View.INVISIBLE;
         showOrHide(visibility);
 
@@ -97,24 +97,24 @@ public class SuspendButton extends LinearLayout {
         return true;
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        int x = (int) event.getX();
-        int y = (int) event.getY();
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                lastX = x;
-                lastY = y;
-                break;
-            case MotionEvent.ACTION_MOVE:
-                int offsetX = x - lastX;
-                int offsetY = y - lastY;
-                layout(getLeft() + offsetX,
-                        getTop() + offsetY,
-                        getRight() + offsetX,
-                        getBottom() + offsetY);
-                break;
-        }
-        return true;
-    }
+//    @Override
+//    public boolean onTouchEvent(MotionEvent event) {
+//        int x = (int) event.getX();
+//        int y = (int) event.getY();
+//        switch (event.getAction()) {
+//            case MotionEvent.ACTION_DOWN:
+//                lastX = x;
+//                lastY = y;
+//                break;
+//            case MotionEvent.ACTION_MOVE:
+//                int offsetX = x - lastX;
+//                int offsetY = y - lastY;
+//                layout(getLeft() + offsetX,
+//                        getTop() + offsetY,
+//                        getRight() + offsetX,
+//                        getBottom() + offsetY);
+//                break;
+//        }
+//        return true;
+//    }
 }

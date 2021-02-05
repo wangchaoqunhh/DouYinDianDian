@@ -1,10 +1,20 @@
 package com.wcq.douyindiandian.application;
 
 import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.text.TextUtils;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.wcq.douyindiandian.entity.MainDataBean;
 
 import cn.bmob.v3.Bmob;
 
 public class AppApplication extends Application {
+
+    private MainDataBean mainDataBean;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -27,5 +37,31 @@ public class AppApplication extends Application {
         //.setFileExpiration(2500)
         //.build();
         //Bmob.initialize(config);
+    }
+
+    public MainDataBean getMainDataBean() {
+        SharedPreferences sp = getSharedPreferences("mainDataBean", Context.MODE_PRIVATE);
+        String mainDataBeanString = sp.getString("mainDataBean", "");
+        if (mainDataBean != null) {
+
+        } else if (!TextUtils.isEmpty(mainDataBeanString)) {
+            mainDataBean = new Gson().fromJson(mainDataBeanString, new TypeToken<MainDataBean>() {
+            }.getType());
+        } else {
+            mainDataBean = MainDataBean.INSTANCE;
+            saveMainData();
+        }
+        return mainDataBean;
+    }
+
+    public void saveMainData() {
+        setMainDataBean(mainDataBean);
+    }
+
+    private void setMainDataBean(MainDataBean mainDataBean) {
+        this.mainDataBean = mainDataBean;
+        SharedPreferences.Editor edit = getSharedPreferences("mainDataBean", Context.MODE_PRIVATE).edit();
+        edit.putString("mainDataBean", new Gson().toJson(mainDataBean));
+        edit.commit();
     }
 }
