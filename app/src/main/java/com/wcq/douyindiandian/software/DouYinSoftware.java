@@ -105,8 +105,11 @@ public class DouYinSoftware extends Software {
     private void openCultivateAccount() {
         if (isNeedGetInfo) {
             isNeedGetInfo = false;
-
-            if (mainDataBean.isBrushHomeRecommend() && mainDataBean.getHomeRecommendCompleteTime() < 30) {
+            //这个30是一共看30分钟
+            final int totalTime = 30;
+            //这个30是 一是视频看30S
+            final int oneTime = 30;
+            if (mainDataBean.isBrushHomeRecommend() && mainDataBean.getHomeRecommendCompleteTime() < totalTime) {
                 List<AccessibilityNodeInfo> recommend = mAccessibilityService.getRootInActiveWindow().findAccessibilityNodeInfosByText("推荐");
                 recommend.get(0).performAction(AccessibilityNodeInfo.ACTION_CLICK);
                 Timer timer = new Timer();
@@ -114,12 +117,13 @@ public class DouYinSoftware extends Software {
                     @Override
                     public void run() {
                         mNodeInfoHelper.getAllNodeInfo("androidx.viewpager.widget.ViewPager", mAccessibilityService.getRootInActiveWindow(), nodeInfo -> {
-                            if (mainDataBean.getHomeRecommendCompleteTime() < 30) {
+                            //这个30是一共看30分钟
+                            if (mainDataBean.getHomeRecommendCompleteTime() < totalTime) {
                                 //保存完成的个数
                                 mainDataBean.setHomeRecommendCompleteNum(mainDataBean.getHomeRecommendCompleteNum() + 1);
                                 //保存完成的总时间 用个数算的  mainDataBean.getHomeRecommendCompleteNum() * 3 % 60
-                                //完成个数 乘以 30S 在 除以 60 等于分钟
-                                mainDataBean.setHomeRecommendCompleteTime(mainDataBean.getHomeRecommendCompleteNum() * 30 / 60);
+                                // 这个30是 一是视频看30S
+                                mainDataBean.setHomeRecommendCompleteTime(mainDataBean.getHomeRecommendCompleteNum() * oneTime / 60);
                                 mApplication.saveMainData();
                                 showLoge(mAccessibilityService, "首页推荐当日完成个数", "" + mainDataBean.getHomeRecommendCompleteNum());
                                 nodeInfo.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD);
@@ -130,7 +134,7 @@ public class DouYinSoftware extends Software {
                             }
                         });
                     }
-                }, 3 * 1000, 3 * 1000);
+                }, oneTime * 1000, oneTime * 1000); // 这个30是 一是视频看30S
                 return;
             }
             if (mainDataBean.isBrushCityRecommend() && mainDataBean.getCityRecommendCompleteTime() < 30) {
