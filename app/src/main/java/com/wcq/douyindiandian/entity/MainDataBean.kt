@@ -1,6 +1,6 @@
 package com.wcq.douyindiandian.entity
 
-object MainDataBean {
+class MainDataBean {
     //是否在直播页关注 榜上大哥
     var isLiveAttention: Boolean = false
     var attentionMixYinLang: Int = 0
@@ -17,6 +17,7 @@ object MainDataBean {
 
     //首页推荐完成时间
     var homeRecommendCompleteTime: Int = 0
+    var homeRecommendCompleteNum: Int = 0
 
     //是否刷同城推荐
     var isBrushCityRecommend: Boolean = false

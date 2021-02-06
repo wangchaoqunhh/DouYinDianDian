@@ -39,11 +39,20 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
 
         mWindowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
 //        createSuspend()
+        initListener()
 
+    }
+
+    private fun initListener() {
         but_start.setOnClickListener {
             initData()
             val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
             startActivity(intent)
+        }
+
+        but_clear.setOnClickListener {
+            mApplication.clearMainData()
+            this.showView()
         }
     }
 
@@ -69,8 +78,12 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
 
     override fun onResume() {
         super.onResume()
-        tv_home_recommend_complete_time.text = "当日完成时间${mainDataBean.homeRecommendCompleteTime}"
-        tv_city_recommend_complete_time.text = "当日完成时间${mainDataBean.cityRecommendCompleteTime}"
+        showView()
+    }
+
+    private fun showView() {
+        tv_home_recommend_complete_time.text = "完成${mainDataBean.homeRecommendCompleteTime}分钟"
+        tv_city_recommend_complete_time.text = "完成${mainDataBean.cityRecommendCompleteTime}分钟"
         tv_comments_completed_num.text = "当日评论完成个数${mainDataBean.commentCompletedNum}"
         tv_video_completed_num.text = "当日完成个数${mainDataBean.seeVideoCompletedNum}"
         tv_top_search_completed_num.text = "当日完成个数${mainDataBean.topSearchCompletedNum}"

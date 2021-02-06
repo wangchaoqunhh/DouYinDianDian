@@ -41,7 +41,7 @@ public abstract class Software {
     private String packageName;
     public Timer timer;
 
-    private AppApplication mApplication;
+    public AppApplication mApplication;
     public MainDataBean mainDataBean;
 
     public void onAccessibilityEvent(AccessibilityEvent event) {

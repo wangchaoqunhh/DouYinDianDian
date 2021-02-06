@@ -48,13 +48,18 @@ public class AppApplication extends Application {
             mainDataBean = new Gson().fromJson(mainDataBeanString, new TypeToken<MainDataBean>() {
             }.getType());
         } else {
-            mainDataBean = MainDataBean.INSTANCE;
+            mainDataBean = new MainDataBean();
             saveMainData();
         }
         return mainDataBean;
     }
 
     public void saveMainData() {
+        setMainDataBean(mainDataBean);
+    }
+
+    public void clearMainData() {
+        mainDataBean = new MainDataBean();
         setMainDataBean(mainDataBean);
     }
 

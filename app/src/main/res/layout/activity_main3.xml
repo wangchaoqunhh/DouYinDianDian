@@ -188,10 +188,17 @@
                     android:layout_height="wrap_content"
                     android:checked="true" />
 
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorAccent"
+                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
                     android:text="看"
                     android:textColor="@color/colorPrimaryDark" />
 
@@ -400,13 +407,32 @@
         </LinearLayout>
     </ScrollView>
 
-    <Button
-        android:id="@+id/but_start"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="16dp"
-        android:background="@drawable/click_c201"
-        android:text="点击开启"
-        android:textColor="#fff" />
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/but_start"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/click_c201"
+            android:text="点击开启"
+            android:textColor="#fff" />
+
+        <Button
+            android:id="@+id/but_clear"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_weight="1"
+            android:background="@drawable/click_c002"
+            android:text="清除"
+            android:textColor="#fff" />
+    </LinearLayout>
+
+
 </RelativeLayout>

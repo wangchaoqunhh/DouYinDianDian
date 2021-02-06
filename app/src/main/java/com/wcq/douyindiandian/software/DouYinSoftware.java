@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import com.wcq.douyindiandian.util.BackData;
 import com.wcq.douyindiandian.util.ListUtil;
 import com.wcq.douyindiandian.util.bean.NodeInfoBean;
 
@@ -13,6 +14,10 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
+
+import static com.wcq.douyindiandian.util.ExpandFunctionKt.eventSchedule;
 import static com.wcq.douyindiandian.util.ExpandFunctionKt.showLoge;
 import static com.wcq.douyindiandian.util.ExpandFunctionKt.showToast;
 
@@ -55,6 +60,23 @@ public class DouYinSoftware extends Software {
                     isNeedGetInfo = true;
                     currentActivityName = event.getClassName().toString();
                     break;
+                case "com.ss.android.ugc.aweme.main.MainActivity"://首页推荐
+                    currentActivityName = event.getClassName().toString();
+                    eventSchedule(mAccessibilityService, timer1 -> {
+                        List<NodeInfoBean> list = new ArrayList<>();
+                        list.add(new NodeInfoBean(NodeInfoBean.className, "androidx.viewpager.widget.ViewPager"));
+                        list.add(new NodeInfoBean(NodeInfoBean.textContent, "推荐"));
+                        list.add(new NodeInfoBean(NodeInfoBean.textContent, "朋友"));
+                        list.add(new NodeInfoBean(NodeInfoBean.textContent, "消息"));
+                        list.add(new NodeInfoBean(NodeInfoBean.textContent, "我"));
+                        boolean pageIsClick = mNodeInfoHelper.pageIsClick(mAccessibilityService.getRootInActiveWindow(), list);
+                        if (pageIsClick) {
+                            isNeedGetInfo = true;
+                            timer1.cancel();
+                        }
+                        return null;
+                    });
+                    break;
                 default:
                     break;
             }
@@ -71,7 +93,60 @@ public class DouYinSoftware extends Software {
                 case "com.ss.android.ugc.aweme.following.ui.FollowRelationTabActivity":
                     if (mainDataBean.isCancelAttention())
                         cancelAllGuanZhu();
+                case "com.ss.android.ugc.aweme.main.MainActivity":
+                    if (mainDataBean.isOpenCultivateAccount()) {
+                        openCultivateAccount();
+                    }
                     break;
+            }
+        }
+    }
+
+    private void openCultivateAccount() {
+        if (isNeedGetInfo) {
+            isNeedGetInfo = false;
+
+            if (mainDataBean.isBrushHomeRecommend() && mainDataBean.getHomeRecommendCompleteTime() < 30) {
+                List<AccessibilityNodeInfo> recommend = mAccessibilityService.getRootInActiveWindow().findAccessibilityNodeInfosByText("推荐");
+                recommend.get(0).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        mNodeInfoHelper.getAllNodeInfo("androidx.viewpager.widget.ViewPager", mAccessibilityService.getRootInActiveWindow(), nodeInfo -> {
+                            if (mainDataBean.getHomeRecommendCompleteTime() < 30) {
+                                //保存完成的个数
+                                mainDataBean.setHomeRecommendCompleteNum(mainDataBean.getHomeRecommendCompleteNum() + 1);
+                                //保存完成的总时间 用个数算的  mainDataBean.getHomeRecommendCompleteNum() * 3 % 60
+                                //完成个数 乘以 30S 在 除以 60 等于分钟
+                                mainDataBean.setHomeRecommendCompleteTime(mainDataBean.getHomeRecommendCompleteNum() * 30 / 60);
+                                mApplication.saveMainData();
+                                showLoge(mAccessibilityService, "首页推荐当日完成个数", "" + mainDataBean.getHomeRecommendCompleteNum());
+                                nodeInfo.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD);
+                                sleep(2000);
+                            } else {
+                                timer.cancel();
+                                openCultivateAccount();
+                            }
+                        });
+                    }
+                }, 3 * 1000, 3 * 1000);
+                return;
+            }
+            if (mainDataBean.isBrushCityRecommend() && mainDataBean.getCityRecommendCompleteTime() < 30) {
+
+            }
+            if (mainDataBean.isLiveRandomComment()) {
+
+            }
+            if (mainDataBean.isWatchVideo()) {
+
+            }
+            if (mainDataBean.isTopSearch()) {
+
+            }
+            if (mainDataBean.isRandomFollow()) {
+
             }
         }
     }
@@ -103,10 +178,10 @@ public class DouYinSoftware extends Software {
     private void scrollRecycler(AccessibilityNodeInfo rootInActiveWindow) {
         mNodeInfoHelper.getAllNodeInfo("androidx.recyclerview.widget.RecyclerView", rootInActiveWindow, nodeInfo -> {
             nodeInfo.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD);
-            sleep(2000);
+            DouYinSoftware.this.sleep(2000);
             isNeedGetInfo = true;
             mAttentionNumber++;
-            cancelAllGuanZhu();
+            DouYinSoftware.this.cancelAllGuanZhu();
         });
     }
 
@@ -127,15 +202,15 @@ public class DouYinSoftware extends Software {
                     showLoge(mAccessibilityService, "我找到了", "我找打了 " + child.isClickable() + "---" + child.getText());
                     child.performAction(AccessibilityNodeInfo.ACTION_CLICK);
                     showLoge(mAccessibilityService, "点击用户", "点击用户 " + child.getText());
-                    sleep(3000);
+                    DouYinSoftware.this.sleep(3000);
 
-                    clickGuanZhu();
+                    DouYinSoftware.this.clickGuanZhu();
                     showLoge(mAccessibilityService, "点击完成", "点击完成 ");
 
                     //点击返回 关闭底部弹窗
                     mAccessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
                     showLoge(mAccessibilityService, "点击关闭弹窗", "点击关闭弹窗");
-                    sleep(1000);
+                    DouYinSoftware.this.sleep(1000);
 
                     //上滑翻页
                     mNodeInfoHelper.getAllNodeInfo("androidx.viewpager.widget.ViewPager", mAccessibilityService.getRootInActiveWindow(), nodeInfo -> {
@@ -143,7 +218,7 @@ public class DouYinSoftware extends Software {
                         showLoge(mAccessibilityService, "点击滑动翻页", "点击滑动翻页");
                         isNeedGetInfo = true;
                         mAttentionNumber++;
-                        sleep(2000);
+                        DouYinSoftware.this.sleep(2000);
                     });
 
                 }
@@ -187,7 +262,7 @@ public class DouYinSoftware extends Software {
                     if (isNeedGuanZhu) {
                         nodeInfo.getChild(2).performAction(AccessibilityNodeInfo.ACTION_CLICK);
                         showLoge(mAccessibilityService, "点击关注", "点击关注 " + position);
-                        sleep(1500);
+                        DouYinSoftware.this.sleep(1500);
                     }
 
                     //判断 最后一条 之后是否需要继续
@@ -207,8 +282,8 @@ public class DouYinSoftware extends Software {
                             mNodeInfoHelper.getAllNodeInfo("androidx.recyclerview.widget.RecyclerView", mAccessibilityService.getRootInActiveWindow(), nodeInfo1 -> {
                                 nodeInfo1.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD);
                                 showLoge(mAccessibilityService, "点击本次上滑完成", "点击本次上滑完成");
-                                sleep(1000);
-                                clickGuanZhu();
+                                DouYinSoftware.this.sleep(1000);
+                                DouYinSoftware.this.clickGuanZhu();
                             });
                         } else {
                             showLoge(mAccessibilityService, "点击上滑所有完成", "点击上滑所有完成");
