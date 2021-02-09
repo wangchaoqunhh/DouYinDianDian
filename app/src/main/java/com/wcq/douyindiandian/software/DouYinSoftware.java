@@ -2,11 +2,14 @@ package com.wcq.douyindiandian.software;
 
 import android.accessibilityservice.AccessibilityService;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import com.google.gson.Gson;
 import com.wcq.douyindiandian.util.BackData;
 import com.wcq.douyindiandian.util.ListUtil;
+import com.wcq.douyindiandian.util.NodeInfoBean2;
 import com.wcq.douyindiandian.util.bean.NodeInfoBean;
 
 import java.util.ArrayList;
@@ -18,6 +21,7 @@ import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 
 import static com.wcq.douyindiandian.util.ExpandFunctionKt.eventSchedule;
+import static com.wcq.douyindiandian.util.ExpandFunctionKt.getAllNodeInfo;
 import static com.wcq.douyindiandian.util.ExpandFunctionKt.showLoge;
 import static com.wcq.douyindiandian.util.ExpandFunctionKt.showToast;
 
@@ -102,13 +106,15 @@ public class DouYinSoftware extends Software {
         }
     }
 
+    //
+    //这个30是一共看30分钟
+    private final int totalTime = 30;
+    //这个30是 一是视频看30S
+    private final int oneTime = 30;
+
     private void openCultivateAccount() {
         if (isNeedGetInfo) {
             isNeedGetInfo = false;
-            //这个30是一共看30分钟
-            final int totalTime = 30;
-            //这个30是 一是视频看30S
-            final int oneTime = 30;
             if (mainDataBean.isBrushHomeRecommend() && mainDataBean.getHomeRecommendCompleteTime() < totalTime) {
                 List<AccessibilityNodeInfo> recommend = mAccessibilityService.getRootInActiveWindow().findAccessibilityNodeInfosByText("推荐");
                 recommend.get(0).performAction(AccessibilityNodeInfo.ACTION_CLICK);
@@ -116,32 +122,60 @@ public class DouYinSoftware extends Software {
                 timer.schedule(new TimerTask() {
                     @Override
                     public void run() {
-                        mNodeInfoHelper.getAllNodeInfo("androidx.viewpager.widget.ViewPager", mAccessibilityService.getRootInActiveWindow(), nodeInfo -> {
-                            //这个30是一共看30分钟
-                            if (mainDataBean.getHomeRecommendCompleteTime() < totalTime) {
-                                //保存完成的个数
-                                mainDataBean.setHomeRecommendCompleteNum(mainDataBean.getHomeRecommendCompleteNum() + 1);
-                                //保存完成的总时间 用个数算的  mainDataBean.getHomeRecommendCompleteNum() * 3 % 60
-                                // 这个30是 一是视频看30S
-                                mainDataBean.setHomeRecommendCompleteTime(mainDataBean.getHomeRecommendCompleteNum() * oneTime / 60);
-                                mApplication.saveMainData();
-                                showLoge(mAccessibilityService, "首页推荐当日完成个数", "" + mainDataBean.getHomeRecommendCompleteNum());
-                                nodeInfo.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD);
-                                sleep(2000);
-                            } else {
-                                timer.cancel();
-                                openCultivateAccount();
-                            }
-                        });
+                        if (mainDataBean.isBrushHomeRecommend() && mainDataBean.getHomeRecommendCompleteTime() < totalTime) {
+                            mNodeInfoHelper.getAllNodeInfo("androidx.viewpager.widget.ViewPager", mAccessibilityService.getRootInActiveWindow(), nodeInfo -> {
+                                //这个30是一共看30分钟
+                                if (mainDataBean.getHomeRecommendCompleteTime() < totalTime) {
+                                    //保存完成的个数
+                                    mainDataBean.setHomeRecommendCompleteNum(mainDataBean.getHomeRecommendCompleteNum() + 1);
+                                    //保存完成的总时间 用个数算的  mainDataBean.getHomeRecommendCompleteNum() * 3 % 60
+                                    // 这个30是 一是视频看30S
+                                    mainDataBean.setHomeRecommendCompleteTime(mainDataBean.getHomeRecommendCompleteNum() * oneTime / 60);
+                                    mApplication.saveMainData();
+                                    showLoge(mAccessibilityService, "首页推荐当日完成个数", "" + mainDataBean.getHomeRecommendCompleteNum());
+                                    nodeInfo.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD);
+                                    sleep(2000);
+                                } else {
+                                    timer.cancel();
+                                    isNeedGetInfo = true;
+                                    openCultivateAccount();
+                                }
+                            });
+                        } else {
+                            timer.cancel();
+                            isNeedGetInfo = true;
+                            openCultivateAccount();
+                        }
                     }
                 }, oneTime * 1000, oneTime * 1000); // 这个30是 一是视频看30S
                 return;
             }
-            if (mainDataBean.isBrushCityRecommend() && mainDataBean.getCityRecommendCompleteTime() < 30) {
-
+            if (mainDataBean.isBrushCityRecommend() && mainDataBean.getCityRecommendCompleteTime() < totalTime) {
+                List<AccessibilityNodeInfo> attention = mAccessibilityService.getRootInActiveWindow().findAccessibilityNodeInfosByText("关注");
+                List<AccessibilityNodeInfo> recommend = mAccessibilityService.getRootInActiveWindow().findAccessibilityNodeInfosByText("推荐");
+                if (!ListUtil.isEmpty(attention) && !ListUtil.isEmpty(recommend)) {
+                    int attentionBrotherSize = attention.get(0).getParent().getChildCount();
+                    int recommendBrotherSize = recommend.get(0).getParent().getChildCount();
+                    if (attentionBrotherSize == recommendBrotherSize) {
+                        AccessibilityNodeInfo parent = attention.get(0).getParent();
+                        AccessibilityNodeInfo city = null;
+                        for (int i = 0; i < parent.getChildCount(); i++) {
+                            if (parent.getChild(i).getText() != null && "关注".equals(parent.getChild(i).getText().toString())) {
+                                //点击同城按钮
+                                city = parent.getChild(i - 1);
+                                break;
+                            }
+                        }
+                        if (city != null) {
+                            city.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                            sleep(2000);
+                            brushCityRecommend();
+                        }
+                    }
+                }
             }
             if (mainDataBean.isLiveRandomComment()) {
-
+                showLoge(mAccessibilityService, "直播页随机评论", "直播页随机评论");
             }
             if (mainDataBean.isWatchVideo()) {
 
@@ -153,6 +187,29 @@ public class DouYinSoftware extends Software {
 
             }
         }
+    }
+
+    private void brushCityRecommend() {
+        mNodeInfoHelper.getAllNodeInfo("android.view.ViewGroup", mAccessibilityService.getRootInActiveWindow(), 0, (nodeInfo, inParentPosition, brotherNum) -> {
+            if (mNodeInfoHelper.judgeParent(nodeInfo, "androidx.recyclerview.widget.RecyclerView")) {
+                nodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                sleep(10 * 1000);
+                mainDataBean.setCityRecommendCompleteNum(mainDataBean.getCityRecommendCompleteNum() + 1);
+                mainDataBean.setCityRecommendCompleteTime(mainDataBean.getCityRecommendCompleteNum() * oneTime / 60);
+                mApplication.saveMainData();
+                mAccessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
+                sleep(1 * 1000);
+                if (mainDataBean.getCityRecommendCompleteTime() < totalTime) {
+                    if (inParentPosition == brotherNum - 1) {
+                        nodeInfo.getParent().performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD);
+                        sleep(1 * 1000);
+                        brushCityRecommend();
+                    }
+                } else {
+                    isNeedGetInfo = true;
+                }
+            }
+        });
     }
 
     private void cancelAllGuanZhu() {

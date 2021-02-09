@@ -52,6 +52,7 @@ class MainActivity : AppCompatActivity(), OnTouchListener {
 
         but_clear.setOnClickListener {
             mApplication.clearMainData()
+            mainDataBean = mApplication.mainDataBean
             this.showView()
         }
     }

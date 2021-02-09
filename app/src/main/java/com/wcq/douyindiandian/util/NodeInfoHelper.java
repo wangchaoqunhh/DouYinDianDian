@@ -8,6 +8,7 @@ import android.graphics.Path;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.wcq.douyindiandian.util.BackData.OnBackClassNameData;
@@ -15,6 +16,7 @@ import com.wcq.douyindiandian.util.BackData.OnBackData;
 import com.wcq.douyindiandian.util.BackData.OnClickScreenCoordinate;
 import com.wcq.douyindiandian.util.bean.NodeInfoBean;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +35,9 @@ public class NodeInfoHelper {
     //遍历所有节点时为了 回收用
 //    public Map<AccessibilityNodeInfo, String> allNodeInfo;
 
+    /**
+     * 获取所有节点 并且把 符合className 的节点 逐条调用OnBackData方法返回
+     */
     public void getAllNodeInfo(String className, AccessibilityNodeInfo nodeInfo, OnBackData onBackData) {
         if (nodeInfo != null && !TextUtils.isEmpty(nodeInfo.getClassName().toString())) {
             if (onBackData != null && className.equals(nodeInfo.getClassName())) {
@@ -50,6 +55,15 @@ public class NodeInfoHelper {
             nodeInfo.recycle();
         }
     }
+
+//    public List<AccessibilityNodeInfo> getAllNodeInfo(String className, AccessibilityNodeInfo nodeInfo) {
+//        List<AccessibilityNodeInfo> list = new ArrayList<>();
+//        getAllNodeInfo(className, nodeInfo, nodeInfo1 -> {
+//            list.add(nodeInfo1);
+//        });
+//        return list;
+//    }
+
 
     private boolean pageIsHaveNodeInfo(String className, AccessibilityNodeInfo nodeInfo) {
         if (nodeInfo != null && !TextUtils.isEmpty(nodeInfo.getClassName().toString())) {
@@ -111,7 +125,6 @@ public class NodeInfoHelper {
             }
         }
     }
-
 
     /**
      * 判断页面是否应该点击

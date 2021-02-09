@@ -24,6 +24,7 @@ class MainDataBean {
 
     //同城推荐完成时间
     var cityRecommendCompleteTime: Int = 0
+    var cityRecommendCompleteNum: Int = 0
 
     //是否在直播页随机评论
     var isLiveRandomComment: Boolean = false
