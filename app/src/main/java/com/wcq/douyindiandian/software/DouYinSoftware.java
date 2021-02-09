@@ -2,14 +2,10 @@ package com.wcq.douyindiandian.software;
 
 import android.accessibilityservice.AccessibilityService;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
-import com.google.gson.Gson;
-import com.wcq.douyindiandian.util.BackData;
 import com.wcq.douyindiandian.util.ListUtil;
-import com.wcq.douyindiandian.util.NodeInfoBean2;
 import com.wcq.douyindiandian.util.bean.NodeInfoBean;
 
 import java.util.ArrayList;
@@ -17,11 +13,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import kotlin.Unit;
-import kotlin.jvm.functions.Function1;
-
 import static com.wcq.douyindiandian.util.ExpandFunctionKt.eventSchedule;
-import static com.wcq.douyindiandian.util.ExpandFunctionKt.getAllNodeInfo;
 import static com.wcq.douyindiandian.util.ExpandFunctionKt.showLoge;
 import static com.wcq.douyindiandian.util.ExpandFunctionKt.showToast;
 
@@ -80,6 +72,11 @@ public class DouYinSoftware extends Software {
                         }
                         return null;
                     });
+                    break;
+                case "androidx.appcompat.app.AlertDialog"://这个是 首页可能出的弹窗(青少年提示)
+                    mAccessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
+                    break;
+                case "com.bytedance.android.livesdk.widget.LiveBottomSheetDialog"://这个是关注好友的弹窗列表
                     break;
                 default:
                     break;
