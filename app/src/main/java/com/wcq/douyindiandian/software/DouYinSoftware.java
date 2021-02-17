@@ -73,12 +73,13 @@ public class DouYinSoftware extends Software {
                         return null;
                     });
                     break;
-                case "androidx.appcompat.app.AlertDialog"://这个是 首页可能出的弹窗(青少年提示)
-                    mAccessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
-                    break;
+//                case "androidx.appcompat.app.AlertDialog"://这个是 首页可能出的弹窗(青少年提示)
+//                    mAccessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
+//                    break;
                 case "com.bytedance.android.livesdk.widget.LiveBottomSheetDialog"://这个是关注好友的弹窗列表
                     break;
                 default:
+                    mAccessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
                     break;
             }
         }
