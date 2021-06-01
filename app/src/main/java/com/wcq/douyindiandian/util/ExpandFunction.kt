@@ -33,14 +33,6 @@ fun Context.showLoge(tag: String, msgs: String?) {
     }
 }
 
-fun Context.eventSchedule(backData: (Timer) -> Unit) {
-    val timer = Timer()
-    timer.schedule(object : TimerTask() {
-        override fun run() {
-            backData.invoke(timer)
-        }
-    }, 0, 500)
-}
 
 class NodeInfoBean2(var className: String? = null, var text: String? = null, var childes: List<NodeInfoBean2>? = null)
 

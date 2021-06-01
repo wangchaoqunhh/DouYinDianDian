@@ -10,6 +10,12 @@ public interface BackData {
     }
 
     //查找 所有节点 返回其中一种
+    public interface OnBackData2 {
+        boolean onBackData(AccessibilityNodeInfo nodeInfo);
+    }
+
+
+    //查找 所有节点 返回其中一种
     public interface OnBackClassNameData {
         /**
          * @param nodeInfo         当前布局(节点)

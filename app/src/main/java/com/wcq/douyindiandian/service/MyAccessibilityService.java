@@ -5,18 +5,23 @@ import android.content.Intent;
 import android.view.accessibility.AccessibilityEvent;
 
 import com.wcq.douyindiandian.software.factory.SoftwareFactory;
+import com.wcq.douyindiandian.util.Logging;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static com.wcq.douyindiandian.util.ExpandFunctionKt.showLoge;
 import static com.wcq.douyindiandian.util.ExpandFunctionKt.showToast;
 
 public class MyAccessibilityService extends AccessibilityService {
+    private String TAG = "MyAccessibilityService";
 
     private SoftwareFactory mSoftwareFactory;
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
 //        必须。通过这个函数可以接收系统发送来的AccessibilityEvent，接收来的AccessibilityEvent是经过过滤的，过滤是在配置工作时设置的。
-        showLoge(this, "所有都能看", event.toString());
+        showLoge(this, TAG + "所有都能看", event.toString());
         mSoftwareFactory = SoftwareFactory.getInstance(event.getPackageName().toString(), this);
         if (mSoftwareFactory != null) {
             mSoftwareFactory.startRun(event);

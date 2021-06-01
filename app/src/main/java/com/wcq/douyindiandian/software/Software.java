@@ -39,10 +39,12 @@ public abstract class Software {
 
     //当前这个应用的包名
     private String packageName;
-    public Timer timer;
+    public Timer mTimer;
 
     public AppApplication mApplication;
     public MainDataBean mainDataBean;
+
+    private Timer startEventControlTimer;
 
     public void onAccessibilityEvent(AccessibilityEvent event) {
         checkAccountUsable();
@@ -83,9 +85,9 @@ public abstract class Software {
      */
     public void startEventControl() {
         isNeedGetInfo = false;
-        //开启一个定时 这样在外界影响下中段 isNeedGetInfo 让他自己也能 true
+        //开启一个定时 这样在外界影响下中断 isNeedGetInfo 让他自己也能 true
         final int an = mAttentionNumber;
-        Timer timer = new Timer();
+        startEventControlTimer = new Timer();
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
@@ -93,18 +95,24 @@ public abstract class Software {
                     showLoge(mAccessibilityService, "点击定时器刷新", "点击定时器刷新");
                     isNeedGetInfo = true;
                 }
-                timer.cancel();
             }
         };
-        timer.schedule(task, 20000);
+        startEventControlTimer.schedule(task, 20000, 20000);
+    }
+
+    public void clearStartEventControl() {
+        if (startEventControlTimer != null) {
+            startEventControlTimer.cancel();
+            startEventControlTimer.purge();
+        }
     }
 
     /**
      * 判断账号是否还有效
      */
     private void checkAccountUsable() {
-        timer = new Timer();
-        timer.schedule(new TimerTask() {
+        mTimer = new Timer();
+        mTimer.schedule(new TimerTask() {
             @Override
             public void run() {
                 SharedPreferences sp = mAccessibilityService.getSharedPreferences("login_code", Context.MODE_PRIVATE);

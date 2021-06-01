@@ -49,8 +49,8 @@ public class SoftwareFactory {
     }
 
     public void destroyInstance() {
-        if (mSoftware != null && mSoftware.timer != null) {
-            mSoftware.timer.cancel();
+        if (mSoftware != null && mSoftware.mTimer != null) {
+            mSoftware.mTimer.cancel();
         }
         mSoftware = null;
         mSoftwareFactory = null;

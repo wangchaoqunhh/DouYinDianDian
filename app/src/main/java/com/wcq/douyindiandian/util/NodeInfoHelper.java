@@ -42,7 +42,7 @@ public class NodeInfoHelper {
         if (nodeInfo != null && !TextUtils.isEmpty(nodeInfo.getClassName().toString())) {
             if (onBackData != null && className.equals(nodeInfo.getClassName())) {
                 //把找到的NOdeInfo 打印出来
-                showLoge(mContext, className, nodeInfo.isClickable() + "-----" + nodeInfo.getText() + "---" + nodeInfo.getParent().getClassName());
+                showLoge(mContext, className, nodeInfo.isClickable() + "-----" + nodeInfo.getText() + "---");
                 onBackData.onBackData(nodeInfo);
             }
             int childCount = nodeInfo.getChildCount();
@@ -54,6 +54,28 @@ public class NodeInfoHelper {
             }
             nodeInfo.recycle();
         }
+    }
+
+    /**
+     * 获取所有节点 并且把 符合className 的节点 逐条调用OnBackData方法返回
+     */
+    public boolean getAllNodeInfo(String className, AccessibilityNodeInfo nodeInfo, BackData.OnBackData2 onBackData) {
+        if (nodeInfo != null && !TextUtils.isEmpty(nodeInfo.getClassName().toString())) {
+            if (onBackData != null && className.equals(nodeInfo.getClassName())) {
+                //把找到的NOdeInfo 打印出来
+                showLoge(mContext, className, nodeInfo.isClickable() + "-----" + nodeInfo.getText() + "---");
+                return onBackData.onBackData(nodeInfo);
+            }
+            int childCount = nodeInfo.getChildCount();
+            if (childCount > 0) {
+                for (int i = 0; i < childCount; i++) {
+                    AccessibilityNodeInfo child = nodeInfo.getChild(i);
+                    getAllNodeInfo(className, child, onBackData);
+                }
+            }
+            nodeInfo.recycle();
+        }
+        return false;
     }
 
 //    public List<AccessibilityNodeInfo> getAllNodeInfo(String className, AccessibilityNodeInfo nodeInfo) {

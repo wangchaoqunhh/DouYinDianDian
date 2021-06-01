@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import com.wcq.douyindiandian.util.BackData;
 import com.wcq.douyindiandian.util.ListUtil;
 import com.wcq.douyindiandian.util.bean.NodeInfoBean;
 
@@ -13,7 +14,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.wcq.douyindiandian.util.ExpandFunctionKt.eventSchedule;
 import static com.wcq.douyindiandian.util.ExpandFunctionKt.showLoge;
 import static com.wcq.douyindiandian.util.ExpandFunctionKt.showToast;
 
@@ -21,35 +21,43 @@ public class DouYinSoftware extends Software {
 
     //是否是抖音播放直播页  com.ss.android.ugc.aweme.live.LivePlayActivity
     //是否是自己关注的人页面 用于取消 所有关注 com.ss.android.ugc.aweme.following.ui.FollowRelationTabActivity
-    private String currentActivityName;
+    private String currentActivityName = "";
+
+    private static String TAG = "DouYinSoftware";
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         super.onAccessibilityEvent(event);
 //        必须。通过这个函数可以接收系统发送来的AccessibilityEvent，接收来的AccessibilityEvent是经过过滤的，过滤是在配置工作时设置的。
-        showLoge(mAccessibilityService, "所有都能看DouYin", event.toString());
+        showLoge(mAccessibilityService, TAG + "所有都能看DouYin", event.toString());
 
-        //通过AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED 判断当前页面是那页
+        //通过AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED 切换Activity 会调用
         if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            showLoge(mAccessibilityService, TAG + "Activity发生改变", event.toString());
+            //每次换新页面时都判断 当前页面和上次页面是否是同一个，如不是同一个页面 就cancel
+//            if (!currentActivityName.equals(event.getClassName().toString())) {
+//                if (timer != null) {
+//                    timer.cancel();
+//                    timer.purge();
+//                }
+//                timer = new Timer();
+//            }
+            clearStartEventControl();
             switch (event.getClassName().toString()) {
                 case "com.ss.android.ugc.aweme.live.LivePlayActivity":
-                    showToast(mAccessibilityService, "已自动开启榜上加关注");
-                    showLoge(mAccessibilityService, "已自动开启榜上加关注", "已自动开启榜上加关注");
+                    showLoge(mAccessibilityService, TAG, "已自动开启榜上加关注");
                     currentActivityName = event.getClassName().toString();
-
-                    Timer timer = new Timer();
-                    timer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            List<NodeInfoBean> list = new ArrayList<>();
-                            list.add(new NodeInfoBean(NodeInfoBean.className, "androidx.viewpager.widget.ViewPager"));
-                            boolean pageIsClick = mNodeInfoHelper.pageIsClick(mAccessibilityService.getRootInActiveWindow(), list);
-                            if (pageIsClick) {
-                                isNeedGetInfo = true;
-                                timer.cancel();
-                            }
-                        }
-                    }, 0, 500);
+//                    while (true) {
+//                        List<NodeInfoBean> list = new ArrayList<>();
+//                        list.add(new NodeInfoBean(NodeInfoBean.className, "androidx.viewpager.widget.ViewPager"));
+//                        boolean pageIsClick = mNodeInfoHelper.pageIsClick(mAccessibilityService.getRootInActiveWindow(), list);
+//                        if (pageIsClick) {
+//                            isNeedGetInfo = true;
+//                            showLoge(mAccessibilityService, TAG + "是否可点击", "直播页面可以点击");
+//                            break;
+//                        }
+//                        sleep(500);
+//                    }
                     break;
                 case "com.ss.android.ugc.aweme.following.ui.FollowRelationTabActivity":
                     showToast(mAccessibilityService, "已自动开启取消未互相关注的用户");
@@ -58,7 +66,7 @@ public class DouYinSoftware extends Software {
                     break;
                 case "com.ss.android.ugc.aweme.main.MainActivity"://首页推荐
                     currentActivityName = event.getClassName().toString();
-                    eventSchedule(mAccessibilityService, timer1 -> {
+                    while (true) {
                         List<NodeInfoBean> list = new ArrayList<>();
                         list.add(new NodeInfoBean(NodeInfoBean.className, "androidx.viewpager.widget.ViewPager"));
                         list.add(new NodeInfoBean(NodeInfoBean.textContent, "推荐"));
@@ -68,10 +76,11 @@ public class DouYinSoftware extends Software {
                         boolean pageIsClick = mNodeInfoHelper.pageIsClick(mAccessibilityService.getRootInActiveWindow(), list);
                         if (pageIsClick) {
                             isNeedGetInfo = true;
-                            timer1.cancel();
+                            showLoge(mAccessibilityService, TAG + "是否可点击", "首页推荐可以点击");
+                            break;
                         }
-                        return null;
-                    });
+                        sleep(500);
+                    }
                     break;
 //                case "androidx.appcompat.app.AlertDialog"://这个是 首页可能出的弹窗(青少年提示)
 //                    mAccessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
@@ -79,6 +88,7 @@ public class DouYinSoftware extends Software {
                 case "com.bytedance.android.livesdk.widget.LiveBottomSheetDialog"://这个是关注好友的弹窗列表
                     break;
                 default:
+                    isNeedGetInfo = false;
                     if ("com.ss.android.ugc.aweme".equals(event.getPackageName()))
                         mAccessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
                     break;
@@ -89,7 +99,7 @@ public class DouYinSoftware extends Software {
         if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED && !TextUtils.isEmpty(currentActivityName)) {
             switch (currentActivityName) {
                 case "com.ss.android.ugc.aweme.live.LivePlayActivity":
-                    showLoge(mAccessibilityService, "抖音直播页", event.toString());
+                    showLoge(mAccessibilityService, TAG + "抖音直播页", event.toString());
                     if (mainDataBean.isLiveAttention())
                         livePlayClickAttention();
                     break;
@@ -223,7 +233,6 @@ public class DouYinSoftware extends Software {
                         info.performAction(AccessibilityNodeInfo.ACTION_CLICK);
                         sleep(500);
                     }
-
                     scrollRecycler(rootInActiveWindow);
                 } else {
                     scrollRecycler(rootInActiveWindow);
@@ -247,42 +256,63 @@ public class DouYinSoftware extends Software {
 
     //播放直播页 点击关注方法
     private void livePlayClickAttention() {
-        if (isNeedGetInfo) {
-            super.startEventControl();
-            mNodeInfoHelper.getAllNodeInfo("android.widget.TextView", mAccessibilityService.getRootInActiveWindow(), child -> {
-                try {
-                    if (child.getText() != null) {
-                        Integer.parseInt(child.getText().toString().substring(0, 1));
-                    }
-                } catch (NumberFormatException e) {
-                    e.printStackTrace();
-                    return;
-                }
-                if (child.isClickable() && mNodeInfoHelper.excludeText(child, "关注", "说点") && mNodeInfoHelper.judgeParent(child, "androidx.viewpager.widget.ViewPager")) {
-                    showLoge(mAccessibilityService, "我找到了", "我找打了 " + child.isClickable() + "---" + child.getText());
-                    child.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                    showLoge(mAccessibilityService, "点击用户", "点击用户 " + child.getText());
-                    DouYinSoftware.this.sleep(3000);
+        showLoge(mAccessibilityService, TAG, "为啥等20S ------" + isNeedGetInfo);
+        if (true) {
+//            super.startEventControl();
+            while (true) {
+                List<NodeInfoBean> list = new ArrayList<>();
+                list.add(new NodeInfoBean(NodeInfoBean.className, "androidx.viewpager.widget.ViewPager"));
+                list.add(new NodeInfoBean(NodeInfoBean.textContent, "关注"));
+                list.add(new NodeInfoBean(NodeInfoBean.textContent, "更多直播"));
+                boolean pageIsClick = mNodeInfoHelper.pageIsClick(mAccessibilityService.getRootInActiveWindow(), list);
+                if (pageIsClick) {
+                    showLoge(mAccessibilityService, TAG + "是否可点击", "直播页面可以点击");
+                    boolean success = mNodeInfoHelper.getAllNodeInfo("android.widget.TextView", mAccessibilityService.getRootInActiveWindow(), child -> {
+                        try {
+                            if (child.getText() != null) {
+                                Integer.parseInt(child.getText().toString().substring(0, 1));
+                            }
+                        } catch (NumberFormatException e) {
+                            e.printStackTrace();
+                            return false;
+                        }
+                        if (child.isClickable() && mNodeInfoHelper.excludeText(child, "关注", "说点") && mNodeInfoHelper.judgeParent(child, "androidx.viewpager.widget.ViewPager")) {
+                            showLoge(mAccessibilityService, "我找到了", "我找打了 " + child.isClickable() + "---" + child.getText());
+                            child.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                            showLoge(mAccessibilityService, "点击用户", "点击用户 " + child.getText());
+                            DouYinSoftware.this.sleep(3000);
 
-                    DouYinSoftware.this.clickGuanZhu();
-                    showLoge(mAccessibilityService, "点击完成", "点击完成 ");
+                            DouYinSoftware.this.clickGuanZhu();
+                            showLoge(mAccessibilityService, "点击完成", "点击完成 ");
 
-                    //点击返回 关闭底部弹窗
-                    mAccessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
-                    showLoge(mAccessibilityService, "点击关闭弹窗", "点击关闭弹窗");
-                    DouYinSoftware.this.sleep(1000);
+                            //点击返回 关闭底部弹窗
+                            mAccessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
+                            showLoge(mAccessibilityService, "点击关闭弹窗", "点击关闭弹窗");
+                            DouYinSoftware.this.sleep(1000);
 
-                    //上滑翻页
-                    mNodeInfoHelper.getAllNodeInfo("androidx.viewpager.widget.ViewPager", mAccessibilityService.getRootInActiveWindow(), nodeInfo -> {
-                        nodeInfo.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD);
-                        showLoge(mAccessibilityService, "点击滑动翻页", "点击滑动翻页");
-                        isNeedGetInfo = true;
-                        mAttentionNumber++;
-                        DouYinSoftware.this.sleep(2000);
+                            //上滑翻页
+                            boolean slideSuccess = mNodeInfoHelper.getAllNodeInfo("androidx.viewpager.widget.ViewPager", mAccessibilityService.getRootInActiveWindow(), new BackData.OnBackData2() {
+                                @Override
+                                public boolean onBackData(AccessibilityNodeInfo nodeInfo) {
+                                    nodeInfo.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD);
+                                    showLoge(mAccessibilityService, "点击滑动翻页", "点击滑动翻页");
+                                    isNeedGetInfo = true;
+                                    mAttentionNumber++;
+                                    DouYinSoftware.this.sleep(2000);
+                                    return true;
+                                }
+                            });
+                            return slideSuccess;
+                        } else {
+                            return false;
+                        }
                     });
-
+                    if (success) {
+                        break;
+                    }
                 }
-            });
+                sleep(500);
+            }
         }
     }
 
@@ -292,6 +322,9 @@ public class DouYinSoftware extends Software {
                 mAccessibilityService.getRootInActiveWindow(),
                 0,
                 (nodeInfo, position, brotherNum) -> {
+                    if (nodeInfo == null) {
+                        return;
+                    }
                     if (!mNodeInfoHelper.judgeParent(nodeInfo, "androidx.recyclerview.widget.RecyclerView")) {
                         return;
                     }
